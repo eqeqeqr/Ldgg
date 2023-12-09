@@ -1,1 +1,38 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main  # 设置触发条件，当代码提交到 main 分支时执行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # 拉取代码到工作目录
+
+    - name: Set up JDK  # 配置 JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: '17'
+
+    - name: Build with Maven  # 使用 Maven 构建项目
+      run: mvn clean install -B
+    
+  publish:
+    needs: build  # 设置依赖，需要前面的 build 步骤执行成功后才执行
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Upload to GitHub Packages  # 上传到 GitHub Packages
+      uses: actions/setup-java@v1
+      with:
+        java-version: '17'
+        
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 设置 GitHub token
+
+      run: mvn deploy
 
